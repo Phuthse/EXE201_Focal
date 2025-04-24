@@ -83,10 +83,6 @@ export default function Dashboard() {
         <ActivityChart />
       </div>
 
-      {/* Blog nổi bật */}
-      <div className="mt-6">
-        <StrongestBlog />
-      </div>
     </>
   );
 }

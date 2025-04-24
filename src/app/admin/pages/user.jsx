@@ -86,7 +86,7 @@ export default function UserList() {
                 className="text-gray-600 hover:text-black text-lg cursor-pointer"
                 onClick={() => handleEditClick(user)}
               />
-              <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" />
+              {/* <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" /> */}
             </div>
           </div>
         ))}
@@ -130,8 +130,8 @@ export default function UserList() {
               name="email"
               placeholder="Email"
               value={editData.email}
-              onChange={handleInputChange}
               className="w-full border-b border-gray-300 outline-none"
+              readOnly
             />
             <input
               type="text"

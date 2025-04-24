@@ -1,35 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
+import rentalApi from "../../api/rentalApi";
 
-const data = [
-  { month: "Nov", productA: 55, productB: 50 },
-  { month: "Dec", productA: 75, productB: 60 },
-  { month: "Jan", productA: 65, productB: 40 },
-  { month: "Feb", productA: 80, productB: 45 },
-  { month: "Mar", productA: 100, productB: 60 }
-];
+export default function RentalStatusAnalytics() {
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default function salesAnalyticsChart() {
+  useEffect(() => {
+    fetchChartData();
+  }, []);
+
+  const fetchChartData = async () => {
+    try {
+      setLoading(true);
+      const rentalRes = await rentalApi.getAllRental();
+      const rentals = rentalRes?.data?.data || [];
+
+      // Đếm số lượng mỗi status
+      const statusMap = rentals.reduce((acc, rental) => {
+        acc[rental.status] = (acc[rental.status] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Convert sang array cho biểu đồ
+      const chartArray = Object.entries(statusMap).map(([status, count]) => ({
+        status,
+        count,
+      }));
+
+      setChartData(chartArray);
+    } catch (err) {
+      console.error("❌ Lỗi khi fetch rental status:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="text-center text-gray-600">Đang tải dữ liệu...</div>;
+
   return (
-    <div className="w-full h-64">
-      <h2 className="font-semibold text-lg mb-2">Sales Analytics</h2>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data}>
+    <div className="p-6 bg-white rounded-lg shadow">
+      <h2 className="text-xl font-bold mb-4">Thống Kê Đơn Thuê (Số liệu không thực tế do quá trình TEST WEB)</h2>
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart
+          data={chartData}
+          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
+          <XAxis dataKey="status" />
+          <YAxis allowDecimals={false} />
           <Tooltip />
-          <Line type="monotone" dataKey="productA" stroke="#000" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="productB" stroke="#999" strokeWidth={2} strokeDasharray="5 5" dot={{ r: 4 }} />
-        </LineChart>
+          <Legend />
+          <Bar dataKey="count" fill="#60a5fa" name="Số lượng đơn" />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
