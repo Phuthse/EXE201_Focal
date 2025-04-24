@@ -138,15 +138,7 @@ export default function Flash() {
                 <strong>Giá thuê:</strong> {equipment.dailyRate} VND/Ngày
               </p>
               <br />
-              <button
-                className="text-sm text-black hover:underline text-left underline cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log("🛒 Thêm vào giỏ hàng:", equipment.equipmentId);
-                }}
-              >
-                Thêm vào giỏ hàng
-              </button>
+              
             </div>
           </div>
         </div>
