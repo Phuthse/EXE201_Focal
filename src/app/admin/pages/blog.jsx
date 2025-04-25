@@ -116,22 +116,22 @@ export default function Blog() {
       {contextHolder}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Blog List</h2>
-        <button
+        {/* <button
           onClick={handleAddNewBlog}
           className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 flex items-center gap-2"
         >
           <PlusOutlined />
           ADD NEW BLOG
-        </button>
+        </button> */}
       </div>
 
       {/* Header */}
       <div className="flex space-x-4 mb-4 font-semibold text-gray-600">
-        <div className="w-1/6 text-center">Title</div>
-        <div className="w-2/6 text-center">Content</div>
-        <div className="w-1/6 text-center">Created At</div>
-        <div className="w-1/6 text-center">Updated At</div>
-        <div className="w-1/6 text-center">Actions</div>
+        <div className="w-1/4 text-center">Title</div>
+        {/* <div className="w-2/6 text-center">Content</div> */}
+        <div className="w-1/4 text-center">Created At</div>
+        <div className="w-1/4 text-center">Updated At</div>
+        <div className="w-1/4 text-center">Actions</div>
       </div>
 
       <div className="space-y-4">
@@ -140,20 +140,20 @@ export default function Blog() {
             key={blog.postId}
             className="flex items-center justify-between p-4 bg-white rounded-lg shadow border"
           >
-            <div className="w-1/6 text-center font-semibold text-gray-800">{blog.title}</div>
-            <div className="w-2/6 text-center text-sm text-gray-600 line-clamp-2">{blog.content}</div>
-            <div className="w-1/6 text-center text-sm text-gray-500">
+            <div className="w-1/4 text-center font-semibold text-gray-800">{blog.title}</div>
+            {/* <div className="w-2/6 text-center text-sm text-gray-600 line-clamp-2">{blog.content}</div> */}
+            <div className="w-1/4 text-center text-sm text-gray-500">
               {new Date(blog.createdAt).toLocaleDateString("en-GB")}
             </div>
-            <div className="w-1/6 text-center text-sm text-gray-500">
+            <div className="w-1/4 text-center text-sm text-gray-500">
               {new Date(blog.updatedAt).toLocaleDateString("en-GB")}
             </div>
-            <div className="w-1/6 flex items-center space-x-4 justify-center">
+            <div className="w-1/4 flex items-center space-x-4 justify-center">
               <EditOutlined
                 className="text-gray-600 hover:text-black text-lg cursor-pointer"
                 onClick={() => handleEditClick(blog)}
               />
-              <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" />
+              {/* <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" /> */}
             </div>
           </div>
         ))}
@@ -186,7 +186,7 @@ export default function Blog() {
               <Input ref={titleInputRef} placeholder="Nhập tiêu đề..." />
             </Form.Item>
 
-            <div className="grid grid-cols-1 gap-4">
+            {/* <div className="grid grid-cols-1 gap-4">
               <h3 className="font-semibold">Introduction</h3>
               <Form.Item label="Title" name="introTitle" rules={[{ required: true }]}>
                 <Input placeholder="Tiêu đề mở đầu" />
@@ -291,7 +291,7 @@ export default function Blog() {
                   </>
                 )}
               </Form.List>
-            </div>
+            </div> */}
 
             <Form.Item className="text-right mt-4">
               <Button type="primary" htmlType="submit" loading={addingBlog}>
@@ -311,14 +311,14 @@ export default function Blog() {
                 onChange={handleInputChange}
                 className="w-full border-b border-gray-300 outline-none"
               />
-              <textarea
+              {/* <textarea
                 name="content"
                 placeholder="Nội dung"
                 value={editData.content}
                 onChange={handleInputChange}
                 className="w-full border-b border-gray-300 outline-none"
                 rows={5}
-              />
+              /> */}
               <Button onClick={handleUpdate} type="primary" block>
                 Cập nhật
               </Button>

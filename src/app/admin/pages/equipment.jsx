@@ -68,6 +68,21 @@ export default function Equipment() {
   const handleInputChange = (name, value) => {
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
+  const handleDeleteClick = async (id) => {
+    try {
+      const confirm = window.confirm("Bạn có chắc muốn xóa thiết bị này?");
+      if (!confirm) return;
+  
+      await equipmentApi.deleteEquipment(id);
+      messageApi.success("Xóa thiết bị thành công!");
+  
+      // Xóa khỏi danh sách mà không cần gọi lại API
+      setEquipments((prev) => prev.filter((eq) => eq.equipmentId !== id));
+    } catch (err) {
+      console.error("❌ Lỗi khi xóa:", err?.response?.data || err.message);
+      messageApi.error("Xóa thiết bị thất bại!");
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -130,7 +145,10 @@ export default function Equipment() {
                 className="text-gray-600 hover:text-black cursor-pointer"
                 onClick={() => handleEditClick(item)}
               />
-              <RestOutlined className="text-gray-600 hover:text-red-600 cursor-pointer" />
+              <RestOutlined
+                className="text-gray-600 hover:text-red-600 cursor-pointer"
+                onClick={() => handleDeleteClick(item.equipmentId)}
+              />
             </div>
           </div>
         ))}

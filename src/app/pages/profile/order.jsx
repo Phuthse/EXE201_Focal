@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react";
-import wishlistApi from "../../api/wishListApi"; // Đổi lại đúng file API
+import wishlistApi from "../../api/wishListApi";
 import rentalApi from "../../api/rentalApi";
 
 const Order = () => {
   const [cardData, setCardData] = useState([]);
   const [message, setMessage] = useState("");
 
-  // Mảng ảnh ngẫu nhiên
   const fallbackImages = [
     "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=2070&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1651922985926-c8fb8c1fe8c4?q=80&w=2070&auto=format&fit=crop",
@@ -21,7 +20,6 @@ const Order = () => {
     "https://images.unsplash.com/photo-1486574655068-162e94137442?q=80&w=2070&auto=format&fit=crop",
   ];
 
-  // Hàm lấy ảnh ngẫu nhiên
   const getRandomImage = () => {
     const index = Math.floor(Math.random() * fallbackImages.length);
     return fallbackImages[index];
@@ -47,22 +45,21 @@ const Order = () => {
           value: item.serialNumber,
         },
         status: item.status,
-        amount: item.dailyRate,
+        amount: Number(item.dailyRate) || 0, // ✅ fix tại đây
         time: item.startDate,
         endTime: item.endDate,
         brand: item.equipmentBrand,
         image: item.primaryImageUrl?.trim() || getRandomImage(),
       }));
 
-      // Sắp xếp dữ liệu, ưu tiên các mục có status là "PENDING"
       const sortedData = transformed.sort((a, b) => {
         if (a.status === "PENDING" && b.status !== "PENDING") {
-          return -1; // Đưa "PENDING" lên đầu
+          return -1;
         }
         if (a.status !== "PENDING" && b.status === "PENDING") {
-          return 1; // Đưa các mục khác xuống dưới
+          return 1;
         }
-        return 0; // Giữ nguyên thứ tự nếu cả hai đều giống nhau
+        return 0;
       });
 
       setCardData(sortedData);
@@ -74,31 +71,22 @@ const Order = () => {
   const handleRemove = async (id, status) => {
     if (status === "PENDING") {
       try {
-        // Gọi API cancel rental
         await rentalApi.cancelRental(id);
-
-        // Cập nhật lại UI
         setCardData((prev) => prev.filter((item) => item.id !== id));
-
-        // Hiển thị thông báo thành công bằng alert
         alert("Thuê thiết bị đã được hủy thành công!");
       } catch (err) {
         console.error("Lỗi xoá item:", err);
-
-        // Hiển thị thông báo lỗi bằng alert
         alert("Lỗi khi hủy thuê, vui lòng thử lại.");
       }
     } else {
-      // Hiển thị thông báo khi trạng thái đã xác nhận
       alert(
-        "Vui lòng liên hệ với người cho thuê thông qua fanpage để được hỗ trợ."
+        "Vui lòng liên hệ với người cho thuê thông qua fanpage hoặc email để được hỗ trợ."
       );
     }
   };
 
   return (
     <div className="w-[1600px] pl-8 flex flex-row gap-6 flex-wrap">
-      {/* Hiển thị thông báo */}
       {message && (
         <div className="text-center text-sm text-green-600 font-semibold">
           {message}
@@ -135,7 +123,8 @@ const CameraCard = ({
   const endDate = new Date(endTime);
   const diffTime = endDate - startDate;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const totalPrice = diffDays * amount;
+  const dailyAmount = Number(amount) || 0;
+  const totalPrice = diffDays * dailyAmount;
 
   return (
     <div className="border h-60 w-[400px] p-4 flex flex-col justify-between text-sm">
@@ -158,14 +147,16 @@ const CameraCard = ({
           </div>
           <div className="text-right mt-1 text-sm text-gray-700">
             Tổng tiền:{" "}
-            <span className="font-semibold text-black">{totalPrice.toLocaleString()} VND</span>
+            <span className="font-semibold text-black">
+              {totalPrice.toLocaleString()} VND
+            </span>
           </div>
         </div>
       </div>
 
       {/* Footer */}
       <div className="flex justify-between items-center mt-2">
-        <div className="text-xs text-gray-600  uppercase font-semibold text-[14px]">
+        <div className="text-xs text-gray-600 uppercase font-semibold text-[14px]">
           {status === "PENDING" ? "Chờ xác nhận" : "Đã xác nhận"}
         </div>
         <div
@@ -178,6 +169,5 @@ const CameraCard = ({
     </div>
   );
 };
-
 
 export default Order;

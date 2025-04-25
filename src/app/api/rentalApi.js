@@ -6,7 +6,8 @@ const rentalApi = {
   cancelRental: (id) => axiosClient.put(`/rental/${id}/cancel`),
   myRental: (id) => axiosClient.get(`/rental/my-rentals`),
   //ADMIN
-  approveRental: (id) => axiosClient.put(`/rental/${id}/approve`),
+  approveRental: (id, status) =>
+  axiosClient.put(`/admin/rentals/${id}/approve`, { status }),
   getAllRental: () => axiosClient.get("/rental"),
 };
 

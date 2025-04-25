@@ -41,12 +41,12 @@ export default function Product() {
       <div className="filter flex flex-row justify-center gap-x-[60px] gap-y-[20px] px-16">
   <NavLink className="link" to="camera">
     <div className="filter1">
-      <p>Máy ảnh</p>
+      <p>Máy ảnh Mirrorless</p>
     </div>
   </NavLink>
   <NavLink className="link" to="flash">
     <div className="filter2">
-      <p>Đèn Flash</p>
+      <p>Máy ảnh DSLR</p>
     </div>
   </NavLink>
   <NavLink className="link" to="lens">

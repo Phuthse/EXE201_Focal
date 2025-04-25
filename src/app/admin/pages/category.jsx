@@ -111,7 +111,7 @@ export default function Category() {
                 className="text-gray-600 hover:text-black text-lg cursor-pointer"
                 onClick={() => handleEditClick(item)}
               />
-              <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" />
+              {/* <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" /> */}
             </div>
           </div>
         ))}

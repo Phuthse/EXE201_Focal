@@ -40,7 +40,7 @@ export default function RentalList() {
 
   const handleApprove = async (rentalId) => {
     try {
-      await rentalApi.approveRental(rentalId);
+      await rentalApi.approveRental(rentalId, "APPROVED");
       messageApi.success("Phê duyệt thành công!");
       setRentals((prev) =>
         prev.map((rental) =>
@@ -58,23 +58,23 @@ export default function RentalList() {
     }
   };
 
-  const handleCancel = async (rentalId) => {
+  const handleReject = async (rentalId) => {
     try {
-      await rentalApi.cancelRental(rentalId);
-      messageApi.success("Hủy thành công!");
+      await rentalApi.approveRental(rentalId, "REJECTED");
+      messageApi.success("Từ chối thành công!");
       setRentals((prev) =>
         prev.map((rental) =>
           rental.rentalId === rentalId
-            ? { ...rental, status: "CANCELLED" }
+            ? { ...rental, status: "REJECTED" }
             : rental
         )
       );
     } catch (error) {
       console.error(
-        "❌ Error cancelling rental:",
+        "❌ Error rejecting rental:",
         error?.response?.data || error.message
       );
-      messageApi.error("Hủy thất bại!");
+      messageApi.error("Từ chối thất bại!");
     }
   };
 
@@ -89,14 +89,14 @@ export default function RentalList() {
     });
   };
 
-  const confirmCancel = (rentalId) => {
+  const confirmReject = (rentalId) => {
     Modal.confirm({
-      title: "Xác nhận hủy",
+      title: "Xác nhận từ chối",
       content: "Bạn có chắc chắn muốn TỪ CHỐI yêu cầu này không?",
       okText: "Từ chối",
-      cancelText: "Đóng",
+      cancelText: "Hủy",
       okType: "danger",
-      onOk: () => handleCancel(rentalId),
+      onOk: () => handleReject(rentalId),
     });
   };
 
@@ -160,9 +160,7 @@ export default function RentalList() {
                 ? new Date(rental.endDate).toLocaleDateString()
                 : "-"}
             </div>
-            <div className="w-1/12 text-center font-semibold text-gray-700">
-              {rental.status}
-            </div>
+            <div className="font-semibold text-gray-700">{rental.status}</div>
             <div className="w-1/12 flex items-center space-x-2 justify-center">
               {rental.status === "PENDING" ? (
                 <>
@@ -170,10 +168,10 @@ export default function RentalList() {
                     className="text-green-600 hover:text-green-800 text-lg cursor-pointer"
                     onClick={() => confirmApprove(rental.rentalId)}
                   />
-                  {/* <CloseOutlined
+                  <CloseOutlined
                     className="text-red-600 hover:text-red-800 text-lg cursor-pointer"
-                    onClick={() => confirmCancel(rental.rentalId)}
-                  /> */}
+                    onClick={() => confirmReject(rental.rentalId)}
+                  />
                 </>
               ) : (
                 <div className="text-gray-400 text-xs italic">Done</div>

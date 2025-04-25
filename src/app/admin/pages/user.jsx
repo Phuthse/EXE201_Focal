@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { EditOutlined, RestOutlined } from "@ant-design/icons";
+import { EditOutlined } from "@ant-design/icons";
 import { Modal, message } from "antd";
 import userApi from "../../api/userApi";
 
@@ -9,6 +9,7 @@ export default function UserList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [originalData, setOriginalData] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -18,7 +19,10 @@ export default function UserList() {
           setUsers(response.data.data);
         }
       } catch (error) {
-        console.error("❌ Error fetching user data:", error?.response?.data || error.message);
+        console.error(
+          "❌ Error fetching user data:",
+          error?.response?.data || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -27,8 +31,26 @@ export default function UserList() {
   }, []);
 
   const handleEditClick = (user) => {
-    setEditData({ ...user });
+    const defaultUser = {
+      ...user,
+      depositAmount: user.depositAmount ?? 0,
+      status: user.status ?? "ACTIVE",
+      role: "CUSTOMER",
+    };
+    setEditData(defaultUser);
+    setOriginalData(defaultUser); // lưu bản gốc để so sánh
     setIsModalOpen(true);
+  };
+  const isDataChanged = (original, updated) => {
+    return (
+      original.firstName !== updated.firstName ||
+      original.lastName !== updated.lastName ||
+      original.phone !== updated.phone ||
+      original.address !== updated.address ||
+      original.dateOfBirth !== updated.dateOfBirth ||
+      Number(original.depositAmount) !== Number(updated.depositAmount) ||
+      original.status !== updated.status
+    );
   };
 
   const handleInputChange = (e) => {
@@ -37,13 +59,41 @@ export default function UserList() {
   };
 
   const handleUpdate = async () => {
+    if (!editData || !originalData) return;
+
+    if (!isDataChanged(originalData, editData)) {
+      messageApi.info("Không có thay đổi nào để cập nhật.");
+      return;
+    }
+
     try {
-      const res = await userApi.updateProfile(editData);
+      const payload = {
+        firstName: editData.firstName,
+        lastName: editData.lastName,
+        phone: editData.phone,
+        address: editData.address,
+        dateOfBirth: editData.dateOfBirth,
+        depositAmount: Number(editData.depositAmount) || 0,
+        status: editData.status || "ACTIVE",
+        role: "CUSTOMER",
+      };
+
+      await userApi.adminUpdateProfile(editData.userId, payload);
       messageApi.success("Cập nhật thành công!");
       setIsModalOpen(false);
-      setUsers([editData]); // cập nhật local list
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.userId === editData.userId
+            ? { ...user, ...payload, userId: editData.userId }
+            : user
+        )
+      );
     } catch (error) {
-      console.error("❌ Lỗi khi cập nhật:", error?.response?.data || error.message);
+      console.error(
+        "❌ Lỗi khi cập nhật:",
+        error?.response?.data || error.message
+      );
       messageApi.error("Cập nhật thất bại!");
     }
   };
@@ -57,10 +107,8 @@ export default function UserList() {
       {contextHolder}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">User List</h2>
-        
       </div>
 
-      {/* Table Header */}
       <div className="flex space-x-4 mb-4 font-semibold text-gray-600">
         <div className="w-1/6 text-center">Name</div>
         <div className="w-1/6 text-center">Email</div>
@@ -70,35 +118,45 @@ export default function UserList() {
         <div className="w-1/6 text-center">Actions</div>
       </div>
 
-      {/* User Rows */}
       <div className="space-y-4">
         {users.map((user, index) => (
-          <div key={index} className="flex items-center justify-between p-4 bg-white rounded-lg shadow border">
+          <div
+            key={index}
+            className="flex items-center justify-between p-4 bg-white rounded-lg shadow border"
+          >
             <div className="w-1/6 text-center font-semibold text-gray-800">
               {user.firstName} {user.lastName}
             </div>
-            <div className="w-1/6 text-center text-sm text-gray-500">{user.email}</div>
-            <div className="w-1/6 text-center text-sm text-gray-500">{user.phone}</div>
-            <div className="w-1/4 text-center text-sm text-gray-500">{user.address}</div>
-            <div className="w-1/6 text-center text-sm text-gray-500">{user.dateOfBirth}</div>
+            <div className="w-1/6 text-center text-sm text-gray-500">
+              {user.email}
+            </div>
+            <div className="w-1/6 text-center text-sm text-gray-500">
+              {user.phone}
+            </div>
+            <div className="w-1/4 text-center text-sm text-gray-500">
+              {user.address}
+            </div>
+            <div className="w-1/6 text-center text-sm text-gray-500">
+              {user.dateOfBirth}
+            </div>
             <div className="w-1/6 flex items-center space-x-4 justify-center">
               <EditOutlined
                 className="text-gray-600 hover:text-black text-lg cursor-pointer"
                 onClick={() => handleEditClick(user)}
               />
-              {/* <RestOutlined className="text-gray-600 hover:text-red-600 text-lg cursor-pointer" /> */}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Total */}
       <div className="flex justify-between items-center mt-6 p-4 bg-gray-100 rounded-lg shadow">
         <div className="font-semibold text-gray-800">Total Users</div>
-        <div className="font-semibold text-gray-800">{users.length} item(s)</div>
+        <div className="font-semibold text-gray-800">
+          {users.length} item(s)
+        </div>
       </div>
 
-      {/* Edit Modal */}
+      {/* Modal chỉnh sửa */}
       <Modal
         title="Chỉnh sửa thông tin"
         open={isModalOpen}
@@ -156,10 +214,26 @@ export default function UserList() {
               onChange={handleInputChange}
               className="w-full border-b border-gray-300 outline-none"
             />
+            <input
+              type="number"
+              name="depositAmount"
+              placeholder="Số tiền nạp"
+              value={editData.depositAmount}
+              onChange={handleInputChange}
+              className="w-full border-b border-gray-300 outline-none"
+            />
+            <select
+              name="status"
+              value={editData.status}
+              onChange={handleInputChange}
+              className="w-full border-b border-gray-300 outline-none"
+            >
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+            </select>
           </div>
         )}
       </Modal>
     </div>
   );
 }
-
