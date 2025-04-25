@@ -83,8 +83,8 @@ const ProfileForm = () => {
             type="email"
             name="email"
             value={data?.email || ""}
-            onChange={handleChange}
             className="w-full border-b border-black outline-none"
+            readOnly
           />
         </div>
 
